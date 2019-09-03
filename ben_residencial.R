@@ -5,9 +5,9 @@ library(tidyverse)
 
 #------------------------------------------------------------------------------------------------
 
-## Consumo por fonte no nível do Brasil (Capítulo 3)
+## Residential consumption by energy source
 
-# Download e leitura
+# URL
 
 URL <- paste0("http://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/",
               "PublicacoesArquivos/publicacao-145/topico-134/",
@@ -17,9 +17,11 @@ if (!file.exists(paste0(tempdir(), "\\ben.xlsx"))) {
   download.file(URL, destfile = paste0(tempdir(), "\\ben.xlsx"), mode="wb")
 }
 
+# Read file
+
 ben <- read_xlsx(paste0(tempdir(), "\\ben.xlsx"), skip = 192, n_max = 7)
 
-# Tratamento
+# Clean data
 
 ben <- ben %>% select(-SOURCES) 
 
@@ -32,16 +34,11 @@ levels(ben$FONTES) <- c("Carvao", "Eletricidade", "Gas", "GLP", "GN","Lenha", "Q
 
 names(ben) <- c("Fonte", "Ano", "Consumo")
 
-# Salva base de dados
-
-ben <- ben %>% mutate(Unidade = "tep") %>% select(Ano, Fonte, Unidade, Consumo) %>% 
-
-write.csv2(ben, "Dados/EPE/BEN/ben.csv", row.names = FALSE)
+ben <- ben %>% mutate(Unidade = "tep") %>% select(Ano, Fonte, Unidade, Consumo) 
 
 #------------------------------------------------------------------------------------------------
-#------------------------------------------------------------------------------------------------
 
-## Consumo por estado (Capítulo 8)
+## Residential consumption of electricity and LPG by Brazilian State
 
 # Download e leitura
 
@@ -54,7 +51,7 @@ if (!file.exists(paste0(tempdir(), "\\ben_estadual.xls"))) {
 }
 
 
-## Energia elétrica
+## Electricity
 
 ben_ee <- read_xls(paste0(tempdir(), "\\ben_estadual.xls"), sheet = "8.2",
                    skip = 3, n_max = 33)
@@ -65,8 +62,7 @@ ben_ee <- ben_ee %>% filter(!(ESTADO %in% c("BRASIL", "NORTE", "NORDESTE", "SUDE
 ben_ee <- ben_ee %>% gather(Ano, Consumo, 2:ncol(ben_ee)) %>% 
           mutate(Fonte = "EE", Unidade = "GWh")
 
-  
-## GLP
+## LPG
 
 ben_glp <- read_xls(paste0(tempdir(), "\\ben_estadual.xls"), sheet = "8.3 ",
                     skip = 4, n_max = 33)
@@ -77,25 +73,34 @@ ben_glp <- ben_glp %>% filter(!(ESTADO %in% c("BRASIL", "NORTE", "NORDESTE", "SU
 ben_glp <- ben_glp %>% gather(Ano, Consumo, 2:ncol(ben_glp)) %>% 
            mutate(Fonte = "GLP", Unidade = "mil m3")
 
+## Merge
 
-## Merge base de dados
+ben_state <- rbind(ben_ee, ben_glp)
 
-ben_regional <- rbind(ben_ee, ben_glp)
+# Fix variable and data
 
-#------------------------------------------------------------------------------------------------
+ben_state <- ben_state %>% mutate(Ano = as.numeric(Ano),
+                                  Consumo = as.numeric(Consumo))
 
-# Ajuste dos tipos das variáveis
+# Fix Espirito Santo name 
 
-ben_regional <- ben_regional %>% mutate(Ano = as.numeric(Ano),
-                                        Consumo = as.numeric(Consumo))
+ben_state$ESTADO[ben_state$ESTADO == "Espirito Santo"] <- "Esp�rito Santo"
 
-# Corrigir o nome do Espírito Santo 
+# Final
 
-ben_regional$ESTADO[ben_regional$ESTADO == "Espirito Santo"] <- "Espírito Santo"
+ben_state <- ben_state %>% select(Ano, UF = ESTADO, Fonte, Unidade, Consumo)
 
-
-# Salva base de dados
-
-ben_regional <- ben_regional %>% select(Ano, UF = ESTADO, Fonte, Unidade, Consumo)
+rm(ben_ee, ben_glp, URL)
 
 #------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
