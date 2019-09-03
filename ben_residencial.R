@@ -1,6 +1,3 @@
-rm(list=ls())
-setwd("//epe.lan/Arquivos/MeusDocs/thiago.rodrigues/My Documents")
-
 # Packages
 
 library(readxl)
@@ -8,7 +5,7 @@ library(tidyverse)
 
 #------------------------------------------------------------------------------------------------
 
-## Consumo por fonte no nível do Brasil (Capítulo 3)
+## Consumo por fonte no nÃ­vel do Brasil (CapÃ­tulo 3)
 
 # Download e leitura
 
@@ -44,7 +41,7 @@ write.csv2(ben, "Dados/EPE/BEN/ben.csv", row.names = FALSE)
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
 
-## Consumo por estado (Capítulo 8)
+## Consumo por estado (CapÃ­tulo 8)
 
 # Download e leitura
 
@@ -57,7 +54,7 @@ if (!file.exists(paste0(tempdir(), "\\ben_estadual.xls"))) {
 }
 
 
-## Energia elétrica
+## Energia elÃ©trica
 
 ben_ee <- read_xls(paste0(tempdir(), "\\ben_estadual.xls"), sheet = "8.2",
                    skip = 3, n_max = 33)
@@ -87,31 +84,18 @@ ben_regional <- rbind(ben_ee, ben_glp)
 
 #------------------------------------------------------------------------------------------------
 
-# Ajuste dos tipos das variáveis
+# Ajuste dos tipos das variÃ¡veis
 
 ben_regional <- ben_regional %>% mutate(Ano = as.numeric(Ano),
                                         Consumo = as.numeric(Consumo))
 
-# Corrigir o nome do Espírito Santo 
+# Corrigir o nome do EspÃ­rito Santo 
 
-ben_regional$ESTADO[ben_regional$ESTADO == "Espirito Santo"] <- "Espírito Santo"
+ben_regional$ESTADO[ben_regional$ESTADO == "Espirito Santo"] <- "EspÃ­rito Santo"
 
 
 # Salva base de dados
 
 ben_regional <- ben_regional %>% select(Ano, UF = ESTADO, Fonte, Unidade, Consumo)
 
-write.csv2(ben_regional, "Dados/EPE/BEN/ben_regional.csv", row.names = FALSE, na = "")
-
 #------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
