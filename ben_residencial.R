@@ -84,7 +84,7 @@ ben_state <- ben_state %>% mutate(Ano = as.numeric(Ano),
 
 # Fix Espirito Santo name 
 
-ben_state$ESTADO[ben_state$ESTADO == "Espirito Santo"] <- "Espírito Santo"
+ben_state$ESTADO[ben_state$ESTADO == "Espirito Santo"] <- "EspÃ­rito Santo"
 
 # Final
 
@@ -93,14 +93,3 @@ ben_state <- ben_state %>% select(Ano, UF = ESTADO, Fonte, Unidade, Consumo)
 rm(ben_ee, ben_glp, URL)
 
 #------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
